@@ -56,7 +56,8 @@ Assim sendo, o objetivo é desenvolver um dashboard para o setor de logística c
         6. O preço para o registro de ID Produto igual a 52 é a mediana dos preços dos produtos cujo o nome possua móveis, pois pertencem às categorias semelhantes.
     2. Na Tabelas - Veículos.csv
         1. Separação das colunas por cada ocorrência do delimitador vírgula.
-        2. Criar a coluna ID com associado a linha para ser usada como ponto de ligação com a Tabelas - Pedido.csv
+        2. Determinar a primeira linha como cabeçalho da tabela.
+        3. Criar a coluna ID com associado a linha para ser usada como ponto de ligação com a Tabelas - Pedido.csv
     3. Na Tabelas - Estoque.csv
         1. Separação das colunas por cada ocorrência do delimitador vírgula.
         2. Na coluna Data atualização, remover a ocorrência de ponto.
@@ -73,3 +74,5 @@ Assim sendo, o objetivo é desenvolver um dashboard para o setor de logística c
                 }
               )
             ```
+    4. Na Tabelas - Pedidos.csv
+        1. Separação das colunas por cada ocorrência do delimitador vírgula.
