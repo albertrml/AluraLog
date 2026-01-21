@@ -76,3 +76,38 @@ Assim sendo, o objetivo é desenvolver um dashboard para o setor de logística c
             ```
     4. Na Tabelas - Pedidos.csv
         1. Separação das colunas por cada ocorrência do delimitador vírgula.
+        2. As datas em texto seguem dois tipos de culturas: pt-BR e en-US. A função customizada parseDateTimeMixed converte para datetime, mantendo a cultura
+             ```
+               //parseDateTimeMixed
+               (value as text) as nullable datetime =>
+               let
+                   pt = try 
+                           DateTime.FromText(value, "pt-BR") 
+                       otherwise 
+                           null,
+                   dt = if pt = null then 
+                           try
+                               DateTime.FromText(value, "en-US") 
+                           otherwise 
+                               null
+                       else
+                           pt
+               in
+                   dt
+             ```
+       3. Para normalizar as culturas, a função customizada normalizeDateTime trata os datetime
+             ```
+               //normalizeDateTime
+               (value as nullable datetime) as nullable datetime =>
+               if value = null then 
+                   null
+               else
+                   #datetime(
+                       Date.Year(Date.From(value)),
+                           Date.Month(Date.From(value)),
+                           Date.Day(Date.From(value)),
+                           Time.Hour(Time.From(value)),
+                           Time.Minute(Time.From(value)),
+                           0
+                   )
+             ```
