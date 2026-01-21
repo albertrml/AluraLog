@@ -18,7 +18,30 @@ Assim sendo, o objetivo é desenvolver um dashboard para o setor de logística c
 - Calcular e mostrar o índice de ocorrências no processo em cada estado.
 
 ## Base de Dados
-- Tabela - Produtos.csv
-- Tabelas - Estoque.csv
-- Tabelas - Pedidos.csv
-- Tabelas - Veículos.csv
+- Tabelas dimensão
+  - [Tabela - Produtos.csv](https://github.com/albertrml/AluraLog/blob/main/dados/Tabela%20-%20Produtos.csv)
+    |  categoria_produto               |  preço  |
+    |----------------------------------|---------|
+    |  1-agro_industria_e_comercio     |  155,00 |
+    |  2-alimentos                     |  58,00  |
+    |  ...                             |  ...    |
+  - [Tabelas - Estoque.csv](https://github.com/albertrml/AluraLog/blob/main/dados/Tabelas%20-%20Estoque.csv)
+    |  ID Produto  |  Data atualização  |  Quantidade  |
+    |--------------|--------------------|--------------|
+    |  1           |  1-jan.-2019       |  432         |
+    |  2           |  1-jan.-2019       |  412         |
+    |  ...         |  ...               |  ...         |
+  - [Tabelas - Veículos.csv](https://github.com/albertrml/AluraLog/blob/main/dados/Tabelas%20-%20Ve%C3%ADculos.csv)
+    |  ID veículos  |  Tipo    |  Status   |
+    |---------------|----------|-----------|
+    |  VEH01        |  carro   |	Ocupado  |
+    |  VEH02        |  carro   |	Ocupado  |
+    |  ...          |  ...     |  ...      |
+- Tabela fato
+  - [Tabelas - Pedidos.csv](https://raw.githubusercontent.com/albertrml/AluraLog/refs/heads/main/dados/Tabelas%20-%20Pedidos.csv)
+    |  ID Pedido  |  ID Produto  |  Quantidade  |  ID Veículo  |  Status do pedido  |  Data da compra  |  Data de entrega  |  Data previsão    |  Latitude  |  Longitude  |  UF da entrega  |
+    |-------------|--------------|--------------|--------------|--------------------|------------------|-------------------|-------------------|------------|-------------|-----------------|
+    |  1          |  32          |  3           |  19          |  Entregue          |  1/4/21 21:15    |  22/01/2021 21:15 |  23/01/2021 21:15 |  -22.19    |  -48.79     |  SP             |
+    |  2          |  50          |  9           |  42          |  Entregue          |  1/5/21 0:15     |  14/01/2021 00:15 |  25/01/2021 00:15 |  -22.19    |  -48.79     |  SP             |
+    |  ...        |  ...         |  ...         |  ...         |  ...               |  ...             |  ...              |  ...              |  ...       |  ...        |  ...            |
+
