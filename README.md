@@ -76,38 +76,41 @@ Assim sendo, o objetivo é desenvolver um dashboard para o setor de logística c
             ```
     4. Na Tabelas - Pedidos.csv
         1. Separação das colunas por cada ocorrência do delimitador vírgula.
-        2. As datas em texto seguem dois tipos de culturas: pt-BR e en-US. A função customizada parseDateTimeMixed converte para datetime, mantendo a cultura
+        2. Como o excel opera em en-US e a Data da compra está no formato en-US, então pode ser formato diretamente em datetime
+        3. Como Data de entrega e Data previsão seguem o padrão pt-BR, então é necessário convertê-lo via função. O código final de todo o processo segue abaixo
              ```
-               //parseDateTimeMixed
-               (value as text) as nullable datetime =>
                let
-                   pt = try 
-                           DateTime.FromText(value, "pt-BR") 
-                       otherwise 
-                           null,
-                   dt = if pt = null then 
-                           try
-                               DateTime.FromText(value, "en-US") 
-                           otherwise 
-                               null
-                       else
-                           pt
+                  Source = Csv.Document(
+                     File.Contents("...\Tabelas - Pedidos.csv"),
+                    [Delimiter=";", Columns=11, Encoding=65001, QuoteStyle=QuoteStyle.None]
+                  ),
+
+                   #"Promoted Headers" =
+                       Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+
+                   #"Changed Types Base" =
+                       Table.TransformColumnTypes(
+                           #"Promoted Headers",{
+                               {"ID Pedido", Int64.Type}, 
+                               {"ID Produto", Int64.Type}, 
+                               {"Quantidade", Int64.Type}, 
+                               {"ID Veículo", Int64.Type}, 
+                               {"Status do pedido", type text},
+                               {"Data da compra", type datetime},
+                               {"Latitude", type number}, 
+                               {"Longitude", type number}, 
+                               {"UF da entrega", type text}
+                           }
+                       ),
+    
+                   #"Converted Datetimes" =
+                       Table.TransformColumns(
+                           #"Changed Types Base",
+                           {
+                               {"Data de entrega", each DateTime.FromText(_, "pt-BR"), type datetime},
+                               {"Data previsão", each DateTime.FromText(_, "pt-BR"), type datetime}
+                           }
+                       )
                in
-                   dt
-             ```
-       3. Para normalizar as culturas, a função customizada normalizeDateTime trata os datetime
-             ```
-               //normalizeDateTime
-               (value as nullable datetime) as nullable datetime =>
-               if value = null then 
-                   null
-               else
-                   #datetime(
-                       Date.Year(Date.From(value)),
-                           Date.Month(Date.From(value)),
-                           Date.Day(Date.From(value)),
-                           Time.Hour(Time.From(value)),
-                           Time.Minute(Time.From(value)),
-                           0
-                   )
+                   #"Converted Datetimes"
              ```
