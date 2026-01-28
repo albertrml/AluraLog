@@ -10,12 +10,13 @@ Assim sendo, o objetivo é desenvolver um dashboard para o setor de logística c
 
 ## KPIs
 
+- Pedidos entregues por região e por estados
+- Calcular os índices S2D (Ship to Door) e SLA (Service Level Agreement).
 - Calcular o número de entregas feitas no prazo.
 - Calcular  a quantidade de entregas que foram feitas atrasadas.
 - Identificar o número de veículos disponíveis para entrega.
 - Calcular o Ship to Door (S2D), que é o tempo da expedição até a chegada do produto para o cliente.
-- Calcular e mostrar o índice de ocorrências no processo em cada estado.
-- Calcular e mostrar o índice de ocorrências no processo em cada estado.
+- Calcular o Ship to Door (SLA), que é a diferença do tempo de chegada do produto para o cliente e do tempo estimado para chegar à casa do mesmo.
 
 ## Base de Dados
 - Tabelas dimensão
@@ -46,71 +47,61 @@ Assim sendo, o objetivo é desenvolver um dashboard para o setor de logística c
     |  ...        |  ...         |  ...         |  ...         |  ...               |  ...             |  ...              |  ...              |  ...       |  ...        |  ...            |
 
 ## Procedimentos do Excel
-1. Aplicação de ETL via Power Query
-    1. Na Tabela - Produtos.csv
-        1. Separação das colunas por primeira ocorrência do delimitador vírgula.
-        2. Divisão da coluna categoria_produto por delimitador -.
-        3. A primeira e a segunda coluna são renomeadas para ID Produto e Produto.
-        4. Substituição dos caracteres vírgula e underline por ponto e espaço, respectivamente.
-        5. Na coluna Preço, converter o dado para moeda.
-        6. O preço para o registro de ID Produto igual a 52 é a mediana dos preços dos produtos cujo o nome possua móveis, pois pertencem às categorias semelhantes.
-    2. Na Tabelas - Veículos.csv
-        1. Separação das colunas por cada ocorrência do delimitador vírgula.
-        2. Determinar a primeira linha como cabeçalho da tabela.
-        3. Criar a coluna ID com associado a linha para ser usada como ponto de ligação com a Tabelas - Pedido.csv
-    3. Na Tabelas - Estoque.csv
-        1. Separação das colunas por cada ocorrência do delimitador vírgula.
-        2. Na coluna Data atualização, remover a ocorrência de ponto.
-        3. Na coluna Data atualização, converter o dado de texto para data. Como a data é pt-BR e meu power query opera em inglês, o comando para resolver via editor avançado é:
-            ```
-              #"Parsed Date"= Table.TransformColumns(
-                #"Replaces Value",
-                {
-                  {
-                    "Data atualização",
-                    each Date.FromText(_, "pt-BR"),
-                    type date
-                  }
-                }
-              )
-            ```
-    4. Na Tabelas - Pedidos.csv
-        1. Separação das colunas por cada ocorrência do delimitador vírgula.
-        2. Como o excel opera em en-US e a Data da compra está no formato en-US, então pode ser formato diretamente em datetime
-        3. Como Data de entrega e Data previsão seguem o padrão pt-BR, então é necessário convertê-lo via função. O código final de todo o processo segue abaixo
-             ```
-               let
-                  Source = Csv.Document(
-                     File.Contents("...\Tabelas - Pedidos.csv"),
-                    [Delimiter=";", Columns=11, Encoding=65001, QuoteStyle=QuoteStyle.None]
-                  ),
+1. ETL via Power Query
+    1. Tabelas dimensões
+        1. DIM_Localidade
+           |    ID  |   Lat     |   Lon     |   UF da entrega   |   Estado  |   Região  |
+           |--------|-----------|-----------|-------------------|-----------|-----------|
+        2. DIM_Produto   
+           |    ID  |  Produto  |   Preço   |
+           |--------|-----------|-----------|
+        3. DIM_Status_Entrega
+           |    ID  |   Categoria   |
+           |--------|---------------|
+        4. DIM_Veiculo
+           |    ID  |   Codigo  |   Tipo    |   Status  |
+           |--------|-----------|-----------|-----------|
+    2. Tabelas fatos
+        1. FT_Estoque
+           |    ID Produto    | Data atualização |  Quantidade  |
+           |------------------|------------------|--------------|
+        2. FT_Entregas
+           |    ID    | ID Produto | ID Veiculo | ID Localidade | ID Status | Quantidade Comprada | Data de entrega | PTL (dias) | SLA | Modulo SLA (dias) | Subtotal |
+           |----------|------------|------------|---------------|-----------|---------------------|-----------------|------------|-----|-------------------|----------|
+2. Relacionamentos
+    1. Para FT_Estoque
+        1. DIM_Produto[ID] (1) --> (n) FT_Estoque[ID Produto]
+        2. Calendar[Date] (1) --> (n) FT_Estoque[ID Produto]. Calendar é gerada via Power Pivot
+    2. Para FT_Entregas
+        1. DIM_Localidade[ID] (1) --> (n) FT_Entregas[ID Localidade]
+        2. DIM_Produto[ID] (1) --> (n) FT_Entregas[ID Produto]
+        3. DIM_Status_Entrega[ID] (1) --> (n) FT_Entregas[ID Status]
+        4. DIM_Veiculo[ID] (1) --> (n) FT_Entregas[ID Veiculo]
+3. Gráficos e campos
+    1. Sem segmentação de dados: 
+        1. Campos de disponibildade de veículos
+        2. Gráficos de estoque por trimestres e anos
+    2. Com segmentação por região: 
+        1. Gráfico de pedidos atendidos
+    3. Com segmentação por região e timeline:
+        1. Gráfico de pedidos atendidos por região
+        2. Campos de indicadores de entregas S2D e SLA
+        3. Campos de entregas antecipadas, no prazo e atrasadas.
+        
+## Conclusões
 
-                   #"Promoted Headers" =
-                       Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-
-                   #"Changed Types Base" =
-                       Table.TransformColumnTypes(
-                           #"Promoted Headers",{
-                               {"ID Pedido", Int64.Type}, 
-                               {"ID Produto", Int64.Type}, 
-                               {"Quantidade", Int64.Type}, 
-                               {"ID Veículo", Int64.Type}, 
-                               {"Status do pedido", type text},
-                               {"Data da compra", type datetime},
-                               {"Latitude", type number}, 
-                               {"Longitude", type number}, 
-                               {"UF da entrega", type text}
-                           }
-                       ),
-    
-                   #"Converted Datetimes" =
-                       Table.TransformColumns(
-                           #"Changed Types Base",
-                           {
-                               {"Data de entrega", each DateTime.FromText(_, "pt-BR"), type datetime},
-                               {"Data previsão", each DateTime.FromText(_, "pt-BR"), type datetime}
-                           }
-                       )
-               in
-                   #"Converted Datetimes"
-             ```
+1.Em termos de pedidos atendidos, as regiões Sudeste, Nordeste e Norte ocupam as três primeiras posições no ranking, considerando recortes de tempo mensal, trimestral e anual. 
+2. A quantidade de pedidos atendidos na região Sudeste é impulsionada majoritariamente por São Paulo e Rio de Janeiro. 
+3. Mesmo sendo a terceira região com mais pedidos atendidos, a região Norte possui a quantidade equivalente à soma registradas pela região Centro-Oeste e Sul, considerando recortes de tempo mensal, trimestral e anual
+4. Há aproximadamente 15% de pedidos sendo entregues fora do prazo.
+5. O comportamento dos indicadores de entrega são semelhantes para os recortes de tempo e região. Assim sendo:
+    1. Em relação ao indicador S2D:
+        1. Para as entregas antecipadas, 50% das entregas são realizadas entre 6 a 13 dias. No melhor e pior caso, as entrega ocorrem em 3 e 19 dias, respectivamente.
+        2. Para as entregas atrasadas, 50% das entregas ocorrem entre 18 a 20 dias.
+        3. Para as entregas no prazo, 50% das entregas ocorrem entre 16 a 19 dias.
+    2. Em relação ao indicador SLA:
+        1. Para as entregas antecipadas, 50% das entregas ocorrem com 4 a 11 dias de antecipação. No melhor caso a entrega ocorre em até 17 antes do prazo.
+        2. Para as entregas atrasadas, 50% das entregas atrasam entre 1 a 3 dias de atraso. No pior caso, o pedido atrasa 5 dias.  
+    3. Com base nos indicadores, aconselha-se: 
+        1. Ajustar a estimativa de entrega entre 17 a 20 dias para qualquer região.
+        2. Verificar as estimativas de entrega para os casos de atraso e quais transportes estão associado com a situação.
