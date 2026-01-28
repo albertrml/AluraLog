@@ -90,18 +90,18 @@ Assim sendo, o objetivo é desenvolver um dashboard para o setor de logística c
         
 ## Conclusões
 
-1.Em termos de pedidos atendidos, as regiões Sudeste, Nordeste e Norte ocupam as três primeiras posições no ranking, considerando recortes de tempo mensal, trimestral e anual. 
+1. Em termos de pedidos atendidos, as regiões Sudeste, Nordeste e Norte ocupam as três primeiras posições no ranking, considerando recortes de tempo mensal, trimestral e anual. 
 2. A quantidade de pedidos atendidos na região Sudeste é impulsionada majoritariamente por São Paulo e Rio de Janeiro. 
 3. Mesmo sendo a terceira região com mais pedidos atendidos, a região Norte possui a quantidade equivalente à soma registradas pela região Centro-Oeste e Sul, considerando recortes de tempo mensal, trimestral e anual
 4. Há aproximadamente 15% de pedidos sendo entregues fora do prazo.
 5. O comportamento dos indicadores de entrega são semelhantes para os recortes de tempo e região. Assim sendo:
     1. Em relação ao indicador S2D:
-        1. Para as entregas antecipadas, 50% das entregas são realizadas entre 6 a 13 dias. No melhor e pior caso, as entrega ocorrem em 3 e 19 dias, respectivamente.
+        1. Para as entregas antecipadas, 50% das entregas são realizadas entre 6 a 13 dias. No melhor e pior caso, as entregas ocorrem em 3 e 19 dias, respectivamente.
         2. Para as entregas atrasadas, 50% das entregas ocorrem entre 18 a 20 dias.
         3. Para as entregas no prazo, 50% das entregas ocorrem entre 16 a 19 dias.
     2. Em relação ao indicador SLA:
         1. Para as entregas antecipadas, 50% das entregas ocorrem com 4 a 11 dias de antecipação. No melhor caso a entrega ocorre em até 17 antes do prazo.
-        2. Para as entregas atrasadas, 50% das entregas atrasam entre 1 a 3 dias de atraso. No pior caso, o pedido atrasa 5 dias.  
+        2. Para as entregas atrasadas, 50% das entregas atrasam em 1 a 3 dias. No pior caso, o pedido atrasa em 5 dias.
     3. Com base nos indicadores, aconselha-se: 
-        1. Ajustar a estimativa de entrega entre 17 a 20 dias para qualquer região.
-        2. Verificar as estimativas de entrega para os casos de atraso e quais transportes estão associado com a situação.
+        1. Paliativamente, ajustar a estimativa de entrega dentro do intervalo de 17 a 20 dias para qualquer região.
+        2. Verificar as estimativas de entrega para os casos de atraso em relação ao tipo de transportes e produtos, visando identificar inadequações.
